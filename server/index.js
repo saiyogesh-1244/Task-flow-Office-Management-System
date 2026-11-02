@@ -1,14 +1,19 @@
-
 import express from 'express';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import db from './db.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 const SECRET = process.env.JWT_SECRET || 'dev-only-change-this-secret';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendPath = path.resolve(__dirname, '../dist');
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
@@ -122,7 +127,7 @@ app.post('/api/auth/login', wrap((req, res) => {
   });
 }));
 
-// GET LOGGED-IN USER — FIXED ROUTE
+// GET LOGGED-IN USER
 app.get('/api/auth/me', auth, (req, res) => {
   res.json({
     user: {
@@ -465,11 +470,23 @@ app.get('/api/users', auth, (req, res) => {
   ).all());
 });
 
+// SERVE REACT FRONTEND
+app.use(express.static(frontendPath));
+
+app.get(/.*/, (req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
+// ERROR HANDLER
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ error: 'Internal server error.' });
 });
 
 app.listen(PORT, () => {
-  console.log(`TaskFlow API running at http://localhost:${PORT}`);
+  console.log(`TaskFlow server running on port ${PORT}`);
 });
