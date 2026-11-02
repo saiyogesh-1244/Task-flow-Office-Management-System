@@ -237,31 +237,34 @@ def main_app():
     overdue = [t for t in tasks if t["status"] != "done" and t["due_date"] and t["due_date"] < today]
     upcoming = [m for m in meetings if m["status"] == "scheduled" and m["meeting_date"] >= today]
 
-    st.markdown(f"# {page}")
-    st.caption(f"Company workspace · Welcome, {user['name'].split()[0]}")
+    if page != "Overview":
+        st.markdown(f"<div class='eyebrow'>COMPANY WORKSPACE</div><div class='page-title'>{page}</div><div class='welcome-copy'>Welcome back, {user['name'].split()[0]}.</div>", unsafe_allow_html=True)
 
     if page == "Overview":
-        cols = st.columns(4)
+        first = user['name'].split()[0]
+        st.markdown("<div class='eyebrow'>COMPANY WORKSPACE</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='page-title'>Overview</div><div class='welcome-kicker'>MONDAY · YOUR WORKSPACE</div><div class='welcome-title'>Good morning, {first}.</div><div class='welcome-copy'>Here's your team's progress at a glance.</div>", unsafe_allow_html=True)
+        cols = st.columns(4, gap="medium")
         metrics = [
-            ("Active projects", len(active)),
-            ("Completed projects", len(completed)),
-            ("My open tasks", len(my_tasks)),
-            ("Upcoming meetings", len(upcoming)),
+            ("ACTIVE PROJECTS", len(active), "▦", "blue"),
+            ("COMPLETED PROJECTS", len(completed), "✓", "gold"),
+            ("MY OPEN TASKS", len(my_tasks), "☷", "slate"),
+            ("UPCOMING MEETINGS", len(upcoming), "▣", "blue"),
         ]
-        for col, (label, value) in zip(cols, metrics):
-            col.metric(label, value)
-        st.subheader("Active projects")
-        show_project_cards(active[:4], uid)
-        c1, c2 = st.columns(2)
+        for col, (label, value, symbol, tone) in zip(cols, metrics):
+            with col:
+                st.markdown(f"<div class='metric-card'><div class='metric-top'><span>{label}</span><span class='metric-icon {tone}'>{symbol}</span></div><div class='metric-value'>{value}</div><div class='metric-foot'>Updated just now</div></div>", unsafe_allow_html=True)
+        st.markdown("<div class='section-kicker'>IN MOTION</div><div class='section-heading'>Active projects</div>", unsafe_allow_html=True)
+        c1, c2 = st.columns([1.25, 1], gap="large")
         with c1:
-            st.subheader("My open tasks")
-            show_task_table(my_tasks[:6])
+            show_project_cards(active[:4], uid)
         with c2:
-            st.subheader("Upcoming meetings")
+            st.markdown("<div class='section-kicker'>ON YOUR CALENDAR</div><div class='section-heading'>Upcoming meetings</div>", unsafe_allow_html=True)
             show_meeting_list(upcoming[:5], uid)
+        st.markdown("<div class='section-kicker'>YOUR PRIORITIES</div><div class='section-heading'>My open tasks</div>", unsafe_allow_html=True)
+        show_task_table(my_tasks[:6])
         if overdue:
             st.warning(f"You have {len(overdue)} overdue task(s).")
-
     elif page in ("Active projects", "Completed projects"):
         rows = active if page == "Active projects" else completed
         c1, c2 = st.columns([2, 1])
@@ -485,30 +488,44 @@ def main():
     <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
     :root { color-scheme: light; }
-    .stApp { background:#f4f6fa; color:#202a3b; font-family:'DM Sans',sans-serif; }
-    [data-testid="stHeader"] { background:transparent; }
-    [data-testid="stSidebar"] { background:linear-gradient(180deg,#142943 0%,#102238 100%); border-right:1px solid #263b56; }
-    [data-testid="stSidebar"] * { color:#f4f7fb; }
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2 { font-family:Manrope,sans-serif; letter-spacing:2px; font-weight:800; }
-    [data-testid="stSidebar"] [data-testid="stRadio"] label { color:#aab5c5!important; font-size:13px; }
-    [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] { gap:7px; }
-    [data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) { background:#233d5d; border-radius:8px; }
-    .brand { font-size:1.55rem; font-weight:800; letter-spacing:.08em; color:#142844; margin-bottom:2rem; font-family:Manrope,sans-serif; }
-    .brand span { display:block; font-size:.72rem; letter-spacing:.22em; color:#b38a45; }
-    h1,h2,h3 { font-family:Manrope,sans-serif!important; color:#1d2b40; letter-spacing:-.5px; }
-    h1 { font-weight:800!important; }
-    [data-testid="stMetric"] { background:#fff; border:1px solid #e9ebef; padding:18px 19px; border-radius:12px; box-shadow:0 5px 18px rgba(24,45,72,.055); }
-    [data-testid="stMetricLabel"] { color:#8c96a4!important; font-size:11px!important; letter-spacing:.5px; }
-    [data-testid="stMetricValue"] { color:#20314a!important; font-family:Manrope,sans-serif; font-weight:800; }
-    [data-testid="stVerticalBlockBorderWrapper"] { border-color:#e8ebef!important; border-radius:12px!important; background:#fff; box-shadow:0 5px 18px rgba(24,45,72,.045); }
-    .stButton>button, .stFormSubmitButton>button { border-radius:7px; font-weight:700; border:1px solid #244b78; background:linear-gradient(135deg,#315f91,#24466e); color:#fff; min-height:2.55rem; }
-    .stButton>button:hover, .stFormSubmitButton>button:hover { border-color:#315f91; color:#fff; background:linear-gradient(135deg,#3c70a8,#2b527f); }
-    [data-testid="stPopover"] button { border-radius:7px; }
-    [data-testid="stTextInput"] input,[data-testid="stTextArea"] textarea,[data-testid="stSelectbox"] div[data-baseweb="select"] { border-radius:7px; }
-    [data-testid="stDataFrame"] { border:1px solid #e9ebef; border-radius:10px; overflow:hidden; }
-    [data-testid="stAlert"] { border-radius:9px; }
-    hr { border-color:#e9ebef; }
-    @media(max-width:760px) { .block-container { padding-top:1.2rem; } }
+    html, body, [class*="css"] { font-family:'DM Sans',sans-serif; }
+    .stApp { background:#f7f8fa; color:#172033; }
+    [data-testid="stHeader"] { background:rgba(247,248,250,.92); }
+    [data-testid="stToolbar"] { right:1rem; }
+    .block-container { max-width:1500px; padding-top:2.0rem; padding-bottom:3rem; }
+    [data-testid="stSidebar"] { background:#101b2d; border-right:1px solid #1e2c42; }
+    [data-testid="stSidebar"] * { color:#f3f5f8; }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2 { font-family:Manrope,sans-serif; font-weight:800; letter-spacing:2px; }
+    [data-testid="stSidebar"] [data-testid="stCaptionContainer"] { color:#8794a8!important; letter-spacing:2px; font-size:10px; }
+    [data-testid="stSidebar"] [data-testid="stRadio"] label { color:#aeb8c7!important; font-size:13px; padding:8px 10px; border-radius:9px; }
+    [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] { gap:8px; }
+    [data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) { background:#1e3150; color:#fff!important; border-left:3px solid #c59b52; }
+    [data-testid="stSidebar"] [data-testid="stRadio"] label:hover { background:#192941; }
+    [data-testid="stSidebar"] [data-testid="stButton"] button { background:#1b2b45!important; border:1px solid #30425c!important; color:#fff!important; }
+    h1,h2,h3 { font-family:Manrope,sans-serif!important; color:#17243a; letter-spacing:-.6px; }
+    .eyebrow { color:#8a94a4; font-size:10px; font-weight:700; letter-spacing:2.4px; margin:0 0 4px 2px; }
+    .page-title { font-family:Manrope,sans-serif; font-size:19px; font-weight:700; color:#17243a; margin-bottom:35px; }
+    .welcome-kicker,.section-kicker { color:#9a835c; font-size:10px; font-weight:700; letter-spacing:2.2px; margin:0 0 8px 2px; }
+    .welcome-title { font-family:Manrope,sans-serif; font-size:32px; line-height:1.18; font-weight:800; letter-spacing:-1.2px; color:#111d30; margin:0 0 7px; }
+    .welcome-copy { color:#8791a0; font-size:13px; margin-bottom:26px; }
+    .metric-card { background:#fff; border:1px solid #edf0f3; border-radius:14px; min-height:128px; padding:19px 20px 15px; box-shadow:0 8px 24px rgba(22,38,60,.035); }
+    .metric-top { display:flex; justify-content:space-between; align-items:center; color:#8a94a3; font-size:9px; font-weight:700; letter-spacing:1.3px; }
+    .metric-icon { width:25px; height:25px; display:inline-flex; align-items:center; justify-content:center; border-radius:7px; font-size:14px; }
+    .metric-icon.blue { color:#4778a8; background:#edf4fb; } .metric-icon.gold { color:#ad8744; background:#faf4e9; } .metric-icon.slate { color:#66758b; background:#f0f2f5; }
+    .metric-value { font-family:Manrope,sans-serif; font-size:31px; font-weight:800; color:#142239; line-height:1.25; margin-top:10px; }
+    .metric-foot { color:#a0a8b4; font-size:10px; margin-top:5px; }
+    .section-kicker { margin-top:28px; margin-bottom:4px; }
+    .section-heading { font-family:Manrope,sans-serif; font-size:18px; font-weight:700; color:#17243a; margin:0 0 13px 2px; }
+    [data-testid="stVerticalBlockBorderWrapper"] { border:1px solid #edf0f3!important; border-radius:13px!important; background:#fff; box-shadow:0 8px 22px rgba(22,38,60,.035); }
+    [data-testid="stMetric"] { background:#fff; border:1px solid #edf0f3; padding:18px; border-radius:13px; }
+    .stButton>button,.stFormSubmitButton>button { border-radius:8px; font-weight:700; border:1px solid #172944; background:#14243b; color:#fff; min-height:2.55rem; }
+    .stButton>button:hover,.stFormSubmitButton>button:hover { border-color:#bd9654; color:#fff; background:#203653; }
+    [data-testid="stPopover"] button { border-radius:8px; }
+    [data-testid="stTextInput"] input,[data-testid="stTextArea"] textarea,[data-testid="stSelectbox"] div[data-baseweb="select"] { border-radius:8px; }
+    [data-testid="stDataFrame"] { border:1px solid #edf0f3; border-radius:10px; overflow:hidden; }
+    [data-testid="stAlert"] { border-radius:10px; }
+    hr { border-color:#edf0f3; }
+    @media(max-width:760px) { .block-container { padding:1.1rem 1rem 2rem; } .welcome-title { font-size:25px; } }
     </style>
     """, unsafe_allow_html=True)
     if not current_user():
