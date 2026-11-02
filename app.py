@@ -211,14 +211,15 @@ def main_app():
     user = current_user()
     uid = user["id"]
     with st.sidebar:
-        st.markdown("## 📋 TASKFLOW")
-        st.caption("OFFICE SUITE")
+        st.markdown("## ◈ TASKFLOW")
+        st.caption("O F F I C E   S U I T E")
         st.divider()
         page = st.radio(
             "WORKSPACE",
-            ["Overview", "Active projects", "Completed projects", "Meetings", "My tasks"],
+            ["◫  Overview", "▦  Active projects", "✓  Completed projects", "◷  Meetings", "☷  My tasks"],
             label_visibility="collapsed"
         )
+        page = page.split("  ", 1)[-1]
         st.divider()
         st.write(f"**{user['name']}**")
         st.caption(user["email"])
@@ -482,13 +483,32 @@ def main():
     init_db()
     st.markdown("""
     <style>
-    .stApp { background: #f5f7fb; color: #17243a; }
-    [data-testid="stSidebar"] { background: #10213b; }
-    [data-testid="stSidebar"] * { color: #f4f7fb !important; }
-    .brand { font-size: 1.55rem; font-weight: 800; letter-spacing: .08em; color: #142844; margin-bottom: 2rem; }
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
+    :root { color-scheme: light; }
+    .stApp { background:#f4f6fa; color:#202a3b; font-family:'DM Sans',sans-serif; }
+    [data-testid="stHeader"] { background:transparent; }
+    [data-testid="stSidebar"] { background:linear-gradient(180deg,#142943 0%,#102238 100%); border-right:1px solid #263b56; }
+    [data-testid="stSidebar"] * { color:#f4f7fb; }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2 { font-family:Manrope,sans-serif; letter-spacing:2px; font-weight:800; }
+    [data-testid="stSidebar"] [data-testid="stRadio"] label { color:#aab5c5!important; font-size:13px; }
+    [data-testid="stSidebar"] [data-testid="stRadio"] div[role="radiogroup"] { gap:7px; }
+    [data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) { background:#233d5d; border-radius:8px; }
+    .brand { font-size:1.55rem; font-weight:800; letter-spacing:.08em; color:#142844; margin-bottom:2rem; font-family:Manrope,sans-serif; }
     .brand span { display:block; font-size:.72rem; letter-spacing:.22em; color:#b38a45; }
-    div[data-testid="stMetric"] { background:white; border:1px solid #e6eaf1; padding:1rem; border-radius:14px; }
-    .stButton>button, .stFormSubmitButton>button { border-radius:9px; }
+    h1,h2,h3 { font-family:Manrope,sans-serif!important; color:#1d2b40; letter-spacing:-.5px; }
+    h1 { font-weight:800!important; }
+    [data-testid="stMetric"] { background:#fff; border:1px solid #e9ebef; padding:18px 19px; border-radius:12px; box-shadow:0 5px 18px rgba(24,45,72,.055); }
+    [data-testid="stMetricLabel"] { color:#8c96a4!important; font-size:11px!important; letter-spacing:.5px; }
+    [data-testid="stMetricValue"] { color:#20314a!important; font-family:Manrope,sans-serif; font-weight:800; }
+    [data-testid="stVerticalBlockBorderWrapper"] { border-color:#e8ebef!important; border-radius:12px!important; background:#fff; box-shadow:0 5px 18px rgba(24,45,72,.045); }
+    .stButton>button, .stFormSubmitButton>button { border-radius:7px; font-weight:700; border:1px solid #244b78; background:linear-gradient(135deg,#315f91,#24466e); color:#fff; min-height:2.55rem; }
+    .stButton>button:hover, .stFormSubmitButton>button:hover { border-color:#315f91; color:#fff; background:linear-gradient(135deg,#3c70a8,#2b527f); }
+    [data-testid="stPopover"] button { border-radius:7px; }
+    [data-testid="stTextInput"] input,[data-testid="stTextArea"] textarea,[data-testid="stSelectbox"] div[data-baseweb="select"] { border-radius:7px; }
+    [data-testid="stDataFrame"] { border:1px solid #e9ebef; border-radius:10px; overflow:hidden; }
+    [data-testid="stAlert"] { border-radius:9px; }
+    hr { border-color:#e9ebef; }
+    @media(max-width:760px) { .block-container { padding-top:1.2rem; } }
     </style>
     """, unsafe_allow_html=True)
     if not current_user():
